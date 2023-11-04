@@ -104,6 +104,7 @@ button:hover {
   letter-spacing: 0.3ch;
   box-shadow: -4px -4px 6px var(--shadow1), 4px 4px 10px var(--shadow2);
   transition: border 0.4s ease;
+  color: wheat;
 }
 
 .lists {
@@ -231,7 +232,7 @@ button:hover {
 }
 .search input {
   flex: 1;
-
+  color: wheat;
   outline: none;
   padding: 0.8rem 0.6rem;
   border: 1px solid #e1c78f;

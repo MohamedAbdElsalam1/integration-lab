@@ -1,16 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { axiosInstance }  from "../axios.config";
 
 const Todolist = () => {
   const [todos, setTodos] = useState([]);
+  const [newTask, setNewTask] = useState("");
 
-  const handleChange = (e) => {};
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-  const handleDelete = (id) => {};
-  const handleEdit = (content) => {};
-  const handleDone = (status) => {};
+  const fetchTodos = async () => {
+    try {
+      const response = await axiosInstance.get("/todos");
+      console.log(response)
+      setTodos(response.data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setNewTask(e.target.value);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/todos/${id}`);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
+  const handleEdit = async (todo) => {
+    const updatedTask = prompt("Enter the updated task:", todo.taskName);
+    if (updatedTask) {
+      try {
+        await axiosInstance.put(`/todos/${todo.id}`, {
+          taskName: updatedTask,
+          isCompleted: todo.isCompleted,
+        });
+        fetchTodos();
+      } catch (error) {
+        console.error("Error updating todo:", error);
+      }
+    }
+  };
+
+  const handleDone = async (todo) => {
+    try {
+      await axiosInstance.put(`/todos/${todo.id}`, {
+        taskName: todo.taskName,
+        isCompleted: !todo.isCompleted,
+      });
+      fetchTodos();
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
+  };
 
   const addTask = async (e) => {
     e.preventDefault();
+    if (newTask.trim() !== "") {
+      try {
+        await axiosInstance.post("/todos", {
+          taskName: newTask,
+          isCompleted: false,
+        });
+        setNewTask("");
+        fetchTodos();
+      } catch (error) {
+        console.error("Error adding todo:", error);
+      }
+    }
   };
 
   return (
@@ -21,15 +83,16 @@ const Todolist = () => {
       <form className="addTask" onSubmit={addTask}>
         <input
           type="text"
+          value={newTask}
           onChange={handleChange}
           placeholder="Add a task........"
         />
         <button className="addtask-btn">Add Task</button>
       </form>
       <div className="lists">
-        {todos?.map((todo, id) => (
+        {todos?.map((todo) => (
           <div
-            key={id}
+            key={todo.id}
             className={`list ${todo.isCompleted ? "completed" : ""}`}
           >
             <p> {todo.taskName}</p>
@@ -63,3 +126,5 @@ const Todolist = () => {
 };
 
 export default Todolist;
+
+
